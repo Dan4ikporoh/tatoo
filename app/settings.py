@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import os
-import os
 from functools import lru_cache
 from pathlib import Path
 from urllib.parse import quote
@@ -21,7 +20,7 @@ class Settings(BaseSettings):
     app_name: str = 'Danya-Tattoo-Voronezh'
     business_name: str = 'Danya Tattoo'
     hero_title: str = 'Татуировки в Воронеже'
-    hero_subtitle: str = 'Мини-приложение для записи, просмотра работ и отзывов'
+    hero_subtitle: str = 'Стильный Telegram Mini App: галерея, запись, отзывы и управление работами'
 
     bot_token: str = 'CHANGE_ME'
     bot_username: str = ''
@@ -37,7 +36,7 @@ class Settings(BaseSettings):
     telegram_link: str = 'https://t.me/your_username'
     vk_link: str = 'https://vk.com/your_username'
 
-    map_embed_url: str = ''
+    yandex_widget_url: str = ''
     map_embed_title: str = 'Карта студии'
 
     default_slot_times: str = '10:00,12:00,14:00,16:00,18:00'
@@ -88,6 +87,14 @@ class Settings(BaseSettings):
         return self.persistence_dir / 'uploads'
 
     @property
+    def booking_uploads_dir(self) -> Path:
+        return self.uploads_dir / 'booking_refs'
+
+    @property
+    def public_works_dir(self) -> Path:
+        return self.uploads_dir / 'works'
+
+    @property
     def works_dir(self) -> Path:
         return BASE_DIR / 'app' / 'static' / 'assets' / 'works'
 
@@ -101,13 +108,7 @@ class Settings(BaseSettings):
 
     @property
     def resolved_public_base_url(self) -> str:
-        candidate = (self.public_base_url or '').strip()
-        if candidate and candidate != 'https://your-domain.example' and candidate != 'https://example.com':
-            return candidate.rstrip('/')
-        render_url = (os.getenv('RENDER_EXTERNAL_URL') or '').strip()
-        if render_url:
-            return render_url.rstrip('/')
-        return candidate.rstrip('/')
+        return self.effective_public_base_url
 
     @property
     def normalized_admin_username(self) -> str:
@@ -121,11 +122,20 @@ class Settings(BaseSettings):
     def yandex_app_link(self) -> str:
         return f'yandexmaps://maps.yandex.ru/?text={quote(self.address)}'
 
+    @property
+    def resolved_yandex_widget_url(self) -> str:
+        explicit = (self.yandex_widget_url or '').strip()
+        if explicit:
+            return explicit
+        return f'https://yandex.ru/map-widget/v1/?text={quote(self.address)}'
+
 
 @lru_cache(maxsize=1)
 def get_settings() -> Settings:
     settings = Settings()
     settings.persistence_dir.mkdir(parents=True, exist_ok=True)
     settings.uploads_dir.mkdir(parents=True, exist_ok=True)
+    settings.booking_uploads_dir.mkdir(parents=True, exist_ok=True)
+    settings.public_works_dir.mkdir(parents=True, exist_ok=True)
     settings.db_path.parent.mkdir(parents=True, exist_ok=True)
     return settings

@@ -4,87 +4,106 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>Danya-Tattoo-Voronezh</title>
-    <meta name="theme-color" content="#0f0f12" />
+    <meta name="theme-color" content="#09090c" />
     <script src="https://telegram.org/js/telegram-web-app.js?59"></script>
     <link rel="stylesheet" href="/static/styles.css" />
   </head>
   <body>
+    <div class="noise"></div>
     <div class="app-shell">
-      <header class="app-header glass-card">
+      <header class="topbar glass-card">
         <div class="brand-wrap">
-          <img id="brandLogo" class="brand-logo" src="/static/assets/logo/danya-tattoo-logo.jpeg" alt="Danya Tattoo logo" />
+          <img id="brandLogo" class="brand-logo" src="/static/assets/logo/danya-tattoo-logo.jpeg" alt="Danya Tattoo" />
           <div>
             <p class="eyebrow">Telegram Mini App</p>
             <h1 id="brandTitle">Danya-Tattoo-Voronezh</h1>
             <p id="brandSubtitle" class="muted">Татуировки в Воронеже</p>
           </div>
         </div>
-        <div class="header-actions">
-          <button id="heroBookingBtn" class="primary-btn">Записаться</button>
-        </div>
+        <button id="heroBookingBtn" class="primary-btn">Записаться</button>
       </header>
 
       <main class="pages">
         <section id="homePage" class="page active">
-          <div class="hero-card glass-card">
-            <div class="hero-text">
-              <p class="eyebrow">Студия / выезд</p>
+          <div class="hero glass-card reveal">
+            <div class="hero-copy">
+              <p class="eyebrow">Blackwork • Graphic • Custom</p>
               <h2 id="heroTitle">Татуировки в Воронеже</h2>
-              <p id="heroSubtitle" class="muted">
-                Мини-приложение для записи, просмотра работ и отзывов.
-              </p>
-            </div>
-            <div class="hero-stats">
-              <div class="stat-pill">
-                <span class="stat-value" id="worksCount">4</span>
-                <span class="stat-label">работы</span>
-              </div>
-              <div class="stat-pill">
-                <span class="stat-value" id="reviewsCount">5</span>
-                <span class="stat-label">отзывов</span>
+              <p id="heroSubtitle" class="muted">Галерея работ, отзывы, карта, настоящий календарь записи и расчёт цены прямо внутри Telegram.</p>
+              <div class="hero-actions">
+                <button class="primary-btn" data-nav-target="bookingPage">Выбрать дату</button>
+                <button class="secondary-btn" data-nav-target="worksPage">Смотреть работы</button>
               </div>
             </div>
-            <div class="quick-actions">
-              <button id="openWorksBtn" class="secondary-btn">Мои работы</button>
-              <button id="openContactBtn" class="secondary-btn">Связь со мной</button>
+            <div class="hero-side">
+              <div class="metric-card accent">
+                <span class="metric-value" id="metricRating">5.0</span>
+                <span class="metric-label">рейтинг мастера</span>
+              </div>
+              <div class="metric-row">
+                <div class="metric-card">
+                  <span class="metric-value" id="worksCount">4</span>
+                  <span class="metric-label">работы</span>
+                </div>
+                <div class="metric-card">
+                  <span class="metric-value" id="reviewsCount">8</span>
+                  <span class="metric-label">отзывов</span>
+                </div>
+              </div>
             </div>
           </div>
 
-          <div class="section-card glass-card">
+          <div class="feature-strip reveal">
+            <div class="feature-pill">🔥 красивый интерфейс студии</div>
+            <div class="feature-pill">📅 живой календарь записи</div>
+            <div class="feature-pill">💰 авторасчёт стоимости</div>
+            <div class="feature-pill">🗺️ Яндекс Карта</div>
+          </div>
+
+          <div class="dashboard-grid">
+            <article class="glass-card section-card reveal">
+              <div class="section-head">
+                <h3>Почему удобно</h3>
+              </div>
+              <ul class="bullet-list">
+                <li>Свободные даты и время видны сразу</li>
+                <li>После заявки клиент получает уведомление в Telegram</li>
+                <li>Отзывы к работам видят все пользователи</li>
+                <li>Только владелец может добавлять новые работы</li>
+              </ul>
+            </article>
+
+            <article class="glass-card section-card reveal">
+              <div class="section-head">
+                <h3>Предоплата</h3>
+              </div>
+              <div class="price-banner">
+                <strong id="prepaymentAmountHome">500 ₽</strong>
+                <span>фиксированно для любой татуировки</span>
+              </div>
+              <p class="muted">После подтверждения записи клиент вносит предоплату, а дальше вы уточняете детали и финальную стоимость в личной переписке.</p>
+            </article>
+          </div>
+
+          <div class="glass-card section-card reveal">
             <div class="section-head">
-              <h3>Обо мне</h3>
+              <h3>Галерея работ</h3>
+              <button class="link-btn" data-nav-target="worksPage">Открыть всю галерею</button>
             </div>
-            <p class="muted">
-              Чёткая графика, аккуратная линия, удобная запись и живые отзывы прямо внутри Telegram.
-            </p>
-            <div class="address-box">
-              <span>📍</span>
-              <div>
-                <strong>Адрес работы</strong>
-                <p id="addressText">Воронеж, Московский проспект, 15</p>
-              </div>
-            </div>
-            <div class="notice-box">
-              <strong>Фиксированная предоплата</strong>
-              <p class="muted">Для любой татуировки — <span id="prepaymentAmountHome">500 ₽</span>.</p>
-            </div>
+            <div id="featuredWorks" class="featured-grid"></div>
           </div>
 
-          <div class="section-card glass-card">
-            <div class="section-head">
-              <h3>Избранные работы</h3>
-              <button class="link-btn" data-nav-target="worksPage">Смотреть все</button>
-            </div>
-            <div id="featuredWorks" class="mini-grid"></div>
-          </div>
-
-          <div class="section-card glass-card">
+          <div class="glass-card section-card reveal">
             <div class="section-head">
               <h3>Где я работаю</h3>
             </div>
             <div id="mapContainer" class="map-box"></div>
-            <div class="map-actions">
-              <button id="openYandexMapBtn" class="secondary-btn">Открыть адрес в Яндекс Картах</button>
+            <div class="address-row">
+              <div>
+                <strong>Адрес</strong>
+                <p id="addressText" class="muted">Воронеж, Московский проспект, 15</p>
+              </div>
+              <button id="openYandexMapBtn" class="secondary-btn">Открыть в Яндекс Картах</button>
             </div>
           </div>
         </section>
@@ -92,54 +111,18 @@
         <section id="worksPage" class="page">
           <div class="page-heading glass-card">
             <h2>Мои работы</h2>
-            <p class="muted">Твои фотографии уже добавлены в приложение.</p>
+            <p class="muted">Анимированная галерея с живыми отзывами к каждой работе.</p>
           </div>
           <div id="worksGrid" class="works-grid"></div>
         </section>
 
-        <section id="reviewsPage" class="page">
-          <div class="page-heading glass-card">
-            <h2>Отзывы</h2>
-            <p class="muted">Каждый пользователь видит все отзывы, а владелец может их редактировать и удалять.</p>
-          </div>
-
-          <div class="section-card glass-card">
-            <div class="section-head">
-              <h3>Оставить отзыв</h3>
-            </div>
-            <form id="reviewForm" class="form-stack">
-              <label>
-                <span>Имя</span>
-                <input name="author_name" type="text" maxlength="60" required placeholder="Например, Кристина" />
-              </label>
-              <label>
-                <span>Оценка</span>
-                <select name="rating" required>
-                  <option value="5">5 звёзд</option>
-                  <option value="4">4 звезды</option>
-                  <option value="3">3 звезды</option>
-                  <option value="2">2 звезды</option>
-                  <option value="1">1 звезда</option>
-                </select>
-              </label>
-              <label>
-                <span>Отзыв</span>
-                <textarea name="text" rows="4" maxlength="1000" required placeholder="Напиши, как всё прошло"></textarea>
-              </label>
-              <button class="primary-btn" type="submit">Опубликовать отзыв</button>
-            </form>
-          </div>
-
-          <div id="reviewsList" class="reviews-list"></div>
-        </section>
-
         <section id="bookingPage" class="page">
           <div class="page-heading glass-card">
-            <h2>Записаться</h2>
-            <p class="muted">Свободные даты — зелёные. Занятые — красные. После отправки заявки ты получишь ответ в Telegram.</p>
+            <h2>Запись</h2>
+            <p class="muted">Зелёные даты — есть окна. Красные — занято. После отправки клиент получает уведомление прямо в Telegram.</p>
           </div>
 
-          <div class="section-card glass-card">
+          <div class="glass-card section-card reveal">
             <div class="calendar-head">
               <button id="prevMonthBtn" class="icon-btn" aria-label="Предыдущий месяц">‹</button>
               <div>
@@ -147,6 +130,10 @@
                 <h3 id="calendarMonthLabel">Текущий месяц</h3>
               </div>
               <button id="nextMonthBtn" class="icon-btn" aria-label="Следующий месяц">›</button>
+            </div>
+            <div class="calendar-legend">
+              <span><i class="dot available"></i> свободно</span>
+              <span><i class="dot busy"></i> занято</span>
             </div>
             <div class="weekdays">
               <span>Пн</span><span>Вт</span><span>Ср</span><span>Чт</span><span>Пт</span><span>Сб</span><span>Вс</span>
@@ -156,122 +143,166 @@
             <div id="slotList" class="slot-list"></div>
           </div>
 
-          <div class="section-card glass-card">
-            <div class="section-head">
-              <h3>Анкета на запись</h3>
-            </div>
-            <div class="notice-box compact">
-              <strong>Предоплата перед сеансом</strong>
-              <p class="muted">После подтверждения записи нужна фиксированная предоплата — <span id="prepaymentAmountBooking">500 ₽</span>.</p>
-            </div>
-            <form id="bookingForm" class="form-stack" enctype="multipart/form-data">
-              <input type="hidden" name="slot_date" />
-              <input type="hidden" name="slot_time" />
+          <div class="form-grid">
+            <div class="glass-card section-card reveal">
+              <div class="section-head">
+                <h3>Анкета</h3>
+              </div>
+              <form id="bookingForm" class="form-stack" enctype="multipart/form-data">
+                <input type="hidden" name="slot_date" />
+                <input type="hidden" name="slot_time" />
 
-              <label>
-                <span>Имя</span>
-                <input name="full_name" type="text" required maxlength="100" placeholder="Александр" />
-              </label>
-              <label>
-                <span>Возраст</span>
-                <input name="age" type="number" min="1" max="120" required placeholder="25" />
-              </label>
-              <label>
-                <span>Где делать тату</span>
-                <select name="service_location" required>
-                  <option value="studio">Приеду к мастеру</option>
-                  <option value="client_home">Нужно у меня дома</option>
-                </select>
-              </label>
-              <label>
-                <span>Место на теле</span>
-                <input name="body_place" type="text" required maxlength="120" placeholder="Например, голень / предплечье / грудь" />
-              </label>
-              <label>
-                <span>Размер</span>
-                <input name="size_cm" type="text" required maxlength="60" placeholder="Например, 12 × 8 см" />
-              </label>
-              <label>
-                <span>Описание татуировки</span>
-                <textarea name="tattoo_description" rows="5" required maxlength="2000" placeholder="Опиши идею, стиль и детали"></textarea>
-              </label>
-              <label>
-                <span>Фото / референс</span>
-                <input name="reference_photo" type="file" accept="image/jpeg,image/png,image/webp" />
-              </label>
-              <label class="checkbox-row">
-                <input name="prepayment_ack" type="checkbox" required />
-                <span>Понимаю, что после подтверждения записи нужно внести предоплату.</span>
-              </label>
-              <button class="primary-btn" type="submit">Отправить запись</button>
-            </form>
+                <label><span>Имя</span><input name="full_name" type="text" required maxlength="100" /></label>
+                <label><span>Возраст</span><input name="age" type="number" min="1" max="120" required /></label>
+                <label>
+                  <span>Где делать тату</span>
+                  <select name="service_location" required>
+                    <option value="studio">Приеду к мастеру</option>
+                    <option value="client_home">Нужно у меня дома</option>
+                  </select>
+                </label>
+                <label><span>Место на теле</span><input name="body_place" type="text" required maxlength="120" placeholder="Предплечье, грудь, голень..." /></label>
+                <label><span>Размер</span><input id="sizeInput" name="size_cm" type="text" required maxlength="60" placeholder="Например, 12 × 8 см" /></label>
+                <label>
+                  <span>Стиль</span>
+                  <select id="styleChoice" name="style_choice">
+                    <option value="custom">Custom</option>
+                    <option value="graphic">Graphic</option>
+                    <option value="blackwork">Blackwork</option>
+                    <option value="linework">Linework</option>
+                    <option value="ornamental">Ornamental</option>
+                  </select>
+                </label>
+                <label>
+                  <span>Цвет</span>
+                  <select id="colorMode" name="color_mode">
+                    <option value="blackwork">Чёрно-белая</option>
+                    <option value="mixed">С цветом</option>
+                  </select>
+                </label>
+                <label><span>Описание татуировки</span><textarea name="tattoo_description" rows="5" required maxlength="2000"></textarea></label>
+                <label><span>Фото / референс</span><input name="reference_photo" type="file" accept="image/jpeg,image/png,image/webp" /></label>
+                <label class="checkbox-row">
+                  <input name="prepayment_ack" type="checkbox" required />
+                  <span>Понимаю, что после подтверждения записи нужна предоплата <b id="prepaymentAmountBooking">500 ₽</b>.</span>
+                </label>
+                <button class="primary-btn" type="submit">Отправить запись</button>
+              </form>
+            </div>
+
+            <div class="glass-card section-card reveal sticky-card">
+              <div class="section-head">
+                <h3>Предварительный расчёт</h3>
+              </div>
+              <div class="estimate-box">
+                <div class="estimate-range"><span id="estimateRange">от 3 000 до 5 000 ₽</span></div>
+                <p class="muted">Это ориентир до переписки с мастером. Точная цена зависит от эскиза, плотности, детализации и анатомии зоны.</p>
+              </div>
+              <div class="mini-info">
+                <strong>Уведомления клиенту</strong>
+                <p class="muted">После отправки заявки клиент получает сообщение в Telegram, а после подтверждения — отдельное уведомление.</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section id="reviewsPage" class="page">
+          <div class="page-heading glass-card">
+            <h2>Отзывы</h2>
+            <p class="muted">Здесь собраны все публичные отзывы. Их видит каждый пользователь Mini App.</p>
+          </div>
+          <div class="form-grid">
+            <div class="glass-card section-card reveal">
+              <div class="section-head"><h3>Оставить общий отзыв</h3></div>
+              <form id="reviewForm" class="form-stack">
+                <label><span>Имя</span><input name="author_name" type="text" maxlength="60" required /></label>
+                <label>
+                  <span>Оценка</span>
+                  <select name="rating" required>
+                    <option value="5">5 звёзд</option>
+                    <option value="4">4 звезды</option>
+                    <option value="3">3 звезды</option>
+                    <option value="2">2 звезды</option>
+                    <option value="1">1 звезда</option>
+                  </select>
+                </label>
+                <label><span>Отзыв</span><textarea name="text" rows="4" maxlength="1000" required></textarea></label>
+                <button class="primary-btn" type="submit">Опубликовать отзыв</button>
+              </form>
+            </div>
+            <div id="reviewsList" class="reviews-list"></div>
           </div>
         </section>
 
         <section id="contactPage" class="page">
           <div class="page-heading glass-card">
             <h2>Связь со мной</h2>
-            <p class="muted">Быстрые ссылки на Telegram и VK.</p>
+            <p class="muted">Быстрые ссылки на Telegram, VK и маршрут в Яндекс Картах.</p>
           </div>
           <div class="contact-grid">
             <a id="telegramLinkCard" class="contact-card glass-card" href="#" target="_blank" rel="noopener noreferrer">
               <span class="contact-icon">✈️</span>
-              <div>
-                <strong>Telegram</strong>
-                <p class="muted">Написать мастеру</p>
-              </div>
+              <div><strong>Telegram</strong><p class="muted">Написать мастеру</p></div>
             </a>
             <a id="vkLinkCard" class="contact-card glass-card" href="#" target="_blank" rel="noopener noreferrer">
               <span class="contact-icon">VK</span>
-              <div>
-                <strong>VK</strong>
-                <p class="muted">Открыть профиль</p>
-              </div>
+              <div><strong>ВКонтакте</strong><p class="muted">Соцсеть и портфолио</p></div>
             </a>
-          </div>
-          <div class="section-card glass-card">
-            <h3>Адрес</h3>
-            <p id="contactAddressText">Воронеж, Московский проспект, 15</p>
+            <button id="contactYandexBtn" class="contact-card glass-card contact-button">
+              <span class="contact-icon">🗺️</span>
+              <div><strong>Яндекс Карты</strong><p class="muted">Маршрут до студии</p></div>
+            </button>
           </div>
         </section>
 
         <section id="adminPage" class="page hidden">
           <div class="page-heading glass-card">
-            <h2>Управление</h2>
-            <p class="muted">Видно только владельцу. Здесь можно менять слоты, просматривать заявки и модерировать отзывы.</p>
+            <h2>Панель владельца</h2>
+            <p class="muted">Добавление работ, управление календарём и публичными отзывами к каждой работе.</p>
           </div>
-
-          <div class="section-card glass-card">
-            <div class="section-head">
-              <h3>Управление доступностью</h3>
-            </div>
-            <form id="adminDayForm" class="inline-form">
-              <label>
-                <span>Дата</span>
-                <input name="slot_date" type="date" required />
-              </label>
-              <button class="secondary-btn" type="button" data-day-action="available">Сделать день свободным</button>
-              <button class="secondary-btn danger-soft" type="button" data-day-action="busy">Сделать день занятым</button>
-            </form>
-            <form id="adminSlotForm" class="inline-form">
-              <label>
-                <span>Дата</span>
-                <input name="slot_date" type="date" required />
-              </label>
-              <label>
-                <span>Время</span>
-                <select name="slot_time" id="adminSlotTime"></select>
-              </label>
-              <button class="secondary-btn" type="button" data-slot-action="available">Слот свободен</button>
-              <button class="secondary-btn danger-soft" type="button" data-slot-action="busy">Слот занят</button>
+          <div class="glass-card section-card reveal">
+            <div class="section-head"><h3>Добавить новую работу</h3></div>
+            <form id="adminWorkForm" class="form-stack" enctype="multipart/form-data">
+              <label><span>Название работы</span><input name="title" type="text" required maxlength="120" /></label>
+              <label><span>Описание</span><textarea name="description" rows="4" required maxlength="1000"></textarea></label>
+              <label><span>Username клиента, который может оставить отзыв на эту работу</span><input name="allowed_reviewer_username" type="text" maxlength="64" placeholder="Например, client_username" /></label>
+              <label><span>Фото работы</span><input name="image" type="file" accept="image/jpeg,image/png,image/webp" required /></label>
+              <button class="primary-btn" type="submit">Добавить в галерею</button>
             </form>
           </div>
 
-          <div class="section-card glass-card">
-            <div class="section-head">
-              <h3>Последние заявки</h3>
+          <div class="glass-card section-card reveal">
+            <div class="section-head"><h3>Управление работами</h3></div>
+            <div id="adminWorksList" class="admin-works-list"></div>
+          </div>
+
+          <div class="admin-grid">
+            <div class="glass-card section-card reveal">
+              <div class="section-head"><h3>Открыть / закрыть день</h3></div>
+              <form id="adminDayForm" class="form-stack compact-form">
+                <label><span>Дата</span><input name="slot_date" type="date" required /></label>
+                <div class="inline-actions">
+                  <button type="button" class="secondary-btn" data-day-action="available">Открыть день</button>
+                  <button type="button" class="secondary-btn danger-soft" data-day-action="busy">Закрыть день</button>
+                </div>
+              </form>
             </div>
-            <div id="adminBookingsList" class="bookings-list"></div>
+            <div class="glass-card section-card reveal">
+              <div class="section-head"><h3>Открыть / закрыть слот</h3></div>
+              <form id="adminSlotForm" class="form-stack compact-form">
+                <label><span>Дата</span><input name="slot_date" type="date" required /></label>
+                <label><span>Время</span><select id="adminSlotTime" name="slot_time"></select></label>
+                <div class="inline-actions">
+                  <button type="button" class="secondary-btn" data-slot-action="available">Открыть слот</button>
+                  <button type="button" class="secondary-btn danger-soft" data-slot-action="busy">Закрыть слот</button>
+                </div>
+              </form>
+            </div>
+          </div>
+
+          <div class="glass-card section-card reveal">
+            <div class="section-head"><h3>Последние заявки</h3></div>
+            <div id="adminBookingsList" class="admin-bookings-list"></div>
           </div>
         </section>
       </main>
@@ -279,11 +310,46 @@
       <nav class="bottom-nav glass-card">
         <button class="nav-btn active" data-nav-target="homePage">Главная</button>
         <button class="nav-btn" data-nav-target="worksPage">Работы</button>
-        <button class="nav-btn" data-nav-target="reviewsPage">Отзывы</button>
         <button class="nav-btn" data-nav-target="bookingPage">Запись</button>
+        <button class="nav-btn" data-nav-target="reviewsPage">Отзывы</button>
         <button class="nav-btn" data-nav-target="contactPage">Связь</button>
-        <button id="adminNavBtn" class="nav-btn hidden" data-nav-target="adminPage">Управление</button>
+        <button id="adminNavBtn" class="nav-btn hidden" data-nav-target="adminPage">Админ</button>
       </nav>
+    </div>
+
+    <div id="workReviewModal" class="modal hidden">
+      <div class="modal-backdrop" data-close-modal></div>
+      <div class="modal-card glass-card">
+        <div class="section-head"><h3 id="workReviewModalTitle">Отзыв к работе</h3><button class="icon-btn" data-close-modal>✕</button></div>
+        <form id="workReviewForm" class="form-stack">
+          <input type="hidden" name="work_id" />
+          <label><span>Имя</span><input name="author_name" type="text" maxlength="60" required /></label>
+          <label>
+            <span>Оценка</span>
+            <select name="rating" required>
+              <option value="5">5 звёзд</option>
+              <option value="4">4 звезды</option>
+              <option value="3">3 звезды</option>
+              <option value="2">2 звезды</option>
+              <option value="1">1 звезда</option>
+            </select>
+          </label>
+          <label><span>Отзыв</span><textarea name="text" rows="4" maxlength="1000" required></textarea></label>
+          <button class="primary-btn" type="submit">Опубликовать отзыв к работе</button>
+        </form>
+      </div>
+    </div>
+
+    <div id="lightbox" class="modal hidden">
+      <div class="modal-backdrop" data-close-lightbox></div>
+      <div class="lightbox-card glass-card">
+        <button class="icon-btn lightbox-close" data-close-lightbox>✕</button>
+        <img id="lightboxImage" src="" alt="Работа" />
+        <div class="lightbox-meta">
+          <h3 id="lightboxTitle"></h3>
+          <p id="lightboxDesc" class="muted"></p>
+        </div>
+      </div>
     </div>
 
     <div id="toast" class="toast hidden"></div>

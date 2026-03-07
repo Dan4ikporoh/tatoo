@@ -21,6 +21,19 @@ SERVICE_LOCATION_LABELS = {
     'client_home': 'У клиента дома',
 }
 
+STYLE_LABELS = {
+    'linework': 'Linework',
+    'graphic': 'Graphic',
+    'blackwork': 'Blackwork',
+    'ornamental': 'Ornamental',
+    'custom': 'Custom',
+}
+
+COLOR_LABELS = {
+    'blackwork': 'Ч/Б',
+    'mixed': 'С цветом',
+}
+
 
 class TelegramBotService:
     def __init__(self) -> None:
@@ -88,6 +101,9 @@ class TelegramBotService:
             return int(stored)
         return None
 
+    def _web_app_button(self, text: str = 'Открыть приложение') -> dict[str, Any]:
+        return {'text': text, 'web_app': {'url': settings.effective_public_base_url}}
+
     def configure_bot(self) -> None:
         try:
             self._call('deleteWebhook', payload={'drop_pending_updates': False})
@@ -106,44 +122,20 @@ class TelegramBotService:
         except Exception:
             logger.exception('Не удалось задать команды бота.')
 
-        try:
-            self._call('setMyName', payload={'name': settings.app_name})
-        except Exception:
-            logger.exception('Не удалось задать имя бота.')
-
-        try:
-            self._call(
-                'setMyDescription',
-                payload={'description': 'Работы, отзывы, запись и календарь сеансов Danya Tattoo в Воронеже.'},
-            )
-        except Exception:
-            logger.exception('Не удалось задать описание бота.')
-
-        try:
-            self._call(
-                'setMyShortDescription',
-                payload={'short_description': 'Запись на тату, работы и отзывы'},
-            )
-        except Exception:
-            logger.exception('Не удалось задать краткое описание бота.')
-
-        if not settings.resolved_public_base_url:
-            logger.warning('PUBLIC_BASE_URL/RENDER_EXTERNAL_URL не найден. Menu button не будет настроен автоматически.')
-            return
-
-        try:
-            self._call(
-                'setChatMenuButton',
-                payload={
-                    'menu_button': {
-                        'type': 'web_app',
-                        'text': 'Открыть приложение',
-                        'web_app': {'url': settings.effective_public_base_url},
-                    }
-                },
-            )
-        except Exception:
-            logger.exception('Не удалось настроить menu button.')
+        if settings.resolved_public_base_url:
+            try:
+                self._call(
+                    'setChatMenuButton',
+                    payload={
+                        'menu_button': {
+                            'type': 'web_app',
+                            'text': 'Danya Tattoo',
+                            'web_app': {'url': settings.effective_public_base_url},
+                        }
+                    },
+                )
+            except Exception:
+                logger.exception('Не удалось настроить menu button.')
 
         try:
             data = self._call('getUpdates', payload={'timeout': 0, 'allowed_updates': ['message', 'callback_query']})
@@ -246,6 +238,7 @@ class TelegramBotService:
                         'message_id': message_id,
                         'caption': new_text,
                         'parse_mode': 'HTML',
+                        'reply_markup': {'inline_keyboard': []},
                     },
                 )
             else:
@@ -256,6 +249,7 @@ class TelegramBotService:
                         'message_id': message_id,
                         'text': new_text,
                         'parse_mode': 'HTML',
+                        'reply_markup': {'inline_keyboard': []},
                     },
                 )
         except Exception:
@@ -275,20 +269,22 @@ class TelegramBotService:
 
     def send_welcome(self, chat_id: int, short: bool = False, is_admin: bool = False) -> None:
         text = (
-            'Привет! Открывай мини-приложение, чтобы посмотреть работы, отзывы и отправить заявку на запись.'
+            'Привет! Жми кнопку ниже и открывай мини-приложение: работы, отзывы, календарь записи и карта.'
             if short
             else (
                 'Привет! Это <b>Danya-Tattoo-Voronezh</b>\n\n'
-                'В приложении можно:\n'
-                '• посмотреть мои работы;\n'
-                '• прочитать и оставить отзывы;\n'
-                '• выбрать свободную дату и отправить заявку на запись;\n'
-                f'• работать с фиксированной предоплатой <b>{settings.prepayment_amount_rub} ₽</b>.\n\n'
-                'Нажимай кнопку ниже.'
+                'Что внутри:\n'
+                '• галерея работ с отзывами;\n'
+                '• красивый календарь свободных дат;\n'
+                '• предварительный расчёт цены;\n'
+                '• запись прямо из Telegram Mini App.\n\n'
+                f'Предоплата фиксированная: <b>{settings.prepayment_amount_rub} ₽</b>.\n\n'
+                'Нажимай кнопку ниже 👇'
             )
         )
         if is_admin:
-            text += '\n\n🔐 Ваш чат привязан как чат владельца. Новые заявки будут приходить сюда.'
+            text += '\n\n🔐 Этот чат привязан как чат владельца. Сюда будут приходить заявки.'
+
         self._call(
             'sendMessage',
             payload={
@@ -296,14 +292,9 @@ class TelegramBotService:
                 'text': text,
                 'parse_mode': 'HTML',
                 'reply_markup': {
-                    'inline_keyboard': [
-                        [
-                            {
-                                'text': 'Открыть приложение',
-                                'web_app': {'url': settings.effective_public_base_url},
-                            }
-                        ]
-                    ]
+                    'keyboard': [[self._web_app_button('📲 Открыть приложение')]],
+                    'resize_keyboard': True,
+                    'is_persistent': True,
                 },
                 'disable_web_page_preview': True,
             },
@@ -322,9 +313,12 @@ class TelegramBotService:
     def _booking_caption(self, booking: dict[str, Any]) -> str:
         username = f"@{booking['username']}" if booking.get('username') else 'без username'
         service_label = SERVICE_LOCATION_LABELS.get(booking['service_location'], booking['service_location'])
+        style_label = STYLE_LABELS.get(booking.get('style_choice') or '', 'Custom')
+        color_label = COLOR_LABELS.get(booking.get('color_mode') or 'blackwork', 'Ч/Б')
         description = html.escape(booking['tattoo_description'])
-        if len(description) > 300:
-            description = description[:297] + '...'
+        if len(description) > 260:
+            description = description[:257] + '...'
+        estimate = f"{booking.get('estimated_price_from', 0)}–{booking.get('estimated_price_to', 0)} ₽"
         lines = [
             f"🆕 <b>Новая заявка #{booking['id']}</b>",
             f"👤 Telegram: {html.escape(booking['telegram_name'])} ({username})",
@@ -335,14 +329,12 @@ class TelegramBotService:
             f"📍 Где бить: {service_label}",
             f"🧍 Место на теле: {html.escape(booking['body_place'])}",
             f"📏 Размер: {html.escape(booking['size_cm'])}",
+            f"🎨 Стиль: {style_label} / {color_label}",
+            f"💰 Предварительно: <b>{estimate}</b>",
             f"💳 Предоплата: <b>{settings.prepayment_amount_rub} ₽</b>",
             f"📝 Описание: {description}",
-            f"🆔 User ID: <code>{booking['user_id']}</code>",
         ]
-        caption = '\n'.join(lines)
-        if len(caption) > settings.booking_caption_limit:
-            return caption[: settings.booking_caption_limit - 3] + '...'
-        return caption
+        return '\n'.join(lines)
 
     def _admin_message_text(self, booking: dict[str, Any], approved: bool) -> str:
         status_text = '✅ <b>Заявка подтверждена</b>' if approved else '❌ <b>Заявка отклонена</b>'
@@ -360,8 +352,6 @@ class TelegramBotService:
         reference_image_path = booking.get('reference_image_path')
         if reference_image_path:
             absolute_path = Path(reference_image_path)
-            if not absolute_path.is_absolute():
-                absolute_path = Path(settings.uploads_dir) / absolute_path.name
             if absolute_path.exists():
                 with absolute_path.open('rb') as photo_file:
                     result = self._call(
@@ -400,13 +390,15 @@ class TelegramBotService:
             database.set_booking_admin_message(int(booking['id']), int(message_id))
         return True
 
-    def notify_user_about_status(self, booking: dict[str, Any] | None, approved: bool) -> None:
-        if not booking:
-            return
+    def notify_user_about_created(self, booking: dict[str, Any]) -> None:
+        estimate = f"{booking.get('estimated_price_from', 0)}–{booking.get('estimated_price_to', 0)} ₽"
         text = (
-            f"✅ Ваша заявка на {booking['slot_date']} в {booking['slot_time']} подтверждена. Мастер свяжется с вами в Telegram. Фиксированная предоплата — {settings.prepayment_amount_rub} ₽."
-            if approved
-            else f"❌ Заявка на {booking['slot_date']} в {booking['slot_time']} была отклонена. Выберите другую дату в приложении."
+            f"🖤 Заявка принята в обработку.\n\n"
+            f"Дата: {booking['slot_date']}\n"
+            f"Время: {booking['slot_time']} (МСК)\n"
+            f"Предварительная цена: {estimate}\n"
+            f"Предоплата после подтверждения: {settings.prepayment_amount_rub} ₽\n\n"
+            f"Как только владелец подтвердит запись, ты получишь уведомление здесь."
         )
         try:
             self._call(
@@ -414,16 +406,30 @@ class TelegramBotService:
                 payload={
                     'chat_id': int(booking['user_id']),
                     'text': text,
-                    'reply_markup': {
-                        'inline_keyboard': [
-                            [
-                                {
-                                    'text': 'Открыть приложение',
-                                    'web_app': {'url': settings.effective_public_base_url},
-                                }
-                            ]
-                        ]
-                    },
+                    'reply_markup': {'inline_keyboard': [[self._web_app_button('Открыть запись')]]},
+                },
+            )
+        except Exception:
+            logger.exception('Не удалось уведомить пользователя о создании заявки.')
+
+    def notify_user_about_status(self, booking: dict[str, Any] | None, approved: bool) -> None:
+        if not booking:
+            return
+        estimate = f"{booking.get('estimated_price_from', 0)}–{booking.get('estimated_price_to', 0)} ₽"
+        text = (
+            f"✅ Ваша заявка на {booking['slot_date']} в {booking['slot_time']} подтверждена. "
+            f"Предварительная цена: {estimate}. Мастер свяжется с вами в Telegram. "
+            f"Фиксированная предоплата — {settings.prepayment_amount_rub} ₽."
+            if approved
+            else f"❌ Заявка на {booking['slot_date']} в {booking['slot_time']} была отклонена. Выберите другой слот в приложении."
+        )
+        try:
+            self._call(
+                'sendMessage',
+                payload={
+                    'chat_id': int(booking['user_id']),
+                    'text': text,
+                    'reply_markup': {'inline_keyboard': [[self._web_app_button('Открыть приложение')]]},
                 },
             )
         except Exception:
