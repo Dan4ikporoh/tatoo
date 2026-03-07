@@ -1,0 +1,37 @@
+services:
+  - type: web
+    name: danya-tattoo-voronezh
+    runtime: python
+    region: frankfurt
+    plan: starter
+    numInstances: 1
+    buildCommand: pip install -r requirements.txt
+    startCommand: python -m uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/health
+    disk:
+      name: app-storage
+      mountPath: /opt/render/project/src/storage
+      sizeGB: 10
+    envVars:
+      - key: BOT_TOKEN
+        sync: false
+      - key: PYTHON_VERSION
+        value: 3.11.11
+      - key: ADMIN_USERNAME
+        value: Dead_Hard11
+      - key: TELEGRAM_LINK
+        value: https://t.me/Dead_Hard11
+      - key: VK_LINK
+        value: https://vk.com/iddan4
+      - key: PREPAYMENT_AMOUNT_RUB
+        value: "500"
+      - key: CITY
+        value: Воронеж
+      - key: ADDRESS
+        value: Воронеж, Московский проспект, 15
+      - key: TIMEZONE_NAME
+        value: Europe/Moscow
+      - key: ALLOW_DEV_AUTH
+        value: "false"
+      - key: PERSISTENT_ROOT
+        value: /opt/render/project/src/storage
