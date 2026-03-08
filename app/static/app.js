@@ -19,6 +19,7 @@ const els = {
   pages: Array.from(document.querySelectorAll('.page')),
   navButtons: Array.from(document.querySelectorAll('.side-nav-btn')), 
   heroBookingBtn: document.getElementById('heroBookingBtn'),
+  brandLogo: document.getElementById('brandLogo'),
   brandTitle: document.getElementById('brandTitle'),
   brandSubtitle: document.getElementById('brandSubtitle'),
   heroTitle: document.getElementById('heroTitle'),
@@ -130,6 +131,7 @@ function switchPage(pageId) {
   els.navButtons.forEach((button) => button.classList.toggle('active', button.dataset.navTarget === pageId));
   closeSideMenu();
   if (pageId === 'homePage' || pageId === 'contactPage') renderMap();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
   if (tg?.HapticFeedback) tg.HapticFeedback.selectionChanged();
 }
 
@@ -164,22 +166,18 @@ function bindNavigation() {
 
 
 function initRevealAnimations() {
-  const nodes = document.querySelectorAll('.reveal, .section-card, .page-heading, .work-card');
-  if (!('IntersectionObserver' in window)) {
-    nodes.forEach((node) => node.classList.add('is-visible'));
-    return;
-  }
-  if (initRevealAnimations._observer) initRevealAnimations._observer.disconnect();
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach((entry) => {
-      if (entry.isIntersecting) entry.target.classList.add('is-visible');
-    });
-  }, { threshold: 0.03 });
-  nodes.forEach((node, index) => {
-    node.style.setProperty('--delay', `${Math.min(index * 18, 120)}ms`);
-    observer.observe(node);
-  });
-  initRevealAnimations._observer = observer;
+  document.querySelectorAll('.reveal').forEach((node) => node.classList.add('is-visible'));
+}
+
+const FALLBACK_LOGO = `data:image/svg+xml;utf8,${encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#f45b69"/><stop offset="100%" stop-color="#b16cff"/></linearGradient></defs><rect width="160" height="160" rx="42" fill="#0b0d13"/><rect x="10" y="10" width="140" height="140" rx="36" fill="url(#g)" opacity="0.18"/><text x="80" y="95" text-anchor="middle" font-family="Arial" font-size="56" font-weight="700" fill="white">DT</text></svg>')}`;
+
+function applyBrandLogo(url) {
+  if (!els.brandLogo) return;
+  els.brandLogo.onerror = () => {
+    els.brandLogo.onerror = null;
+    els.brandLogo.src = FALLBACK_LOGO;
+  };
+  if (url) els.brandLogo.src = url;
 }
 
 
@@ -195,18 +193,48 @@ function closeAddWorkModal() {
 function renderMap(force = false) {
   const app = state.bootstrap?.app;
   if (!app || !els.mapContainer) return;
-  if (els.mapContainer.dataset.loaded === '1') return;
-  if (!force && document.getElementById('homePage')?.classList.contains('active') === false) return;
+
   const mount = () => {
+    if (els.mapContainer.dataset.loaded === '1') return;
     els.mapContainer.innerHTML = `
       <iframe src="${escapeHtml(app.mapEmbedUrl)}" title="${escapeHtml(app.mapEmbedTitle || 'Яндекс Карта')}" loading="lazy"></iframe>
     `;
     els.mapContainer.dataset.loaded = '1';
   };
-  if ('requestIdleCallback' in window) {
-    requestIdleCallback(mount, { timeout: 1200 });
+
+  if (els.mapContainer.dataset.ready !== '1') {
+    els.mapContainer.innerHTML = `
+      <div class="map-placeholder">
+        <div>
+          <strong>${escapeHtml(app.address)}</strong>
+          <p class="muted">Карта подгружается по мере просмотра, чтобы приложение открывалось быстрее.</p>
+          <button id="mapLoadBtn" class="secondary-btn" type="button">Показать карту</button>
+        </div>
+      </div>
+    `;
+    els.mapContainer.dataset.ready = '1';
+    document.getElementById('mapLoadBtn')?.addEventListener('click', mount, { once: true });
+  }
+
+  if (els.mapContainer.dataset.loaded === '1') return;
+  if (force) {
+    mount();
+    return;
+  }
+
+  if ('IntersectionObserver' in window) {
+    if (renderMap._observer) renderMap._observer.disconnect();
+    renderMap._observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          mount();
+          renderMap._observer?.disconnect();
+        }
+      });
+    }, { rootMargin: '180px 0px' });
+    renderMap._observer.observe(els.mapContainer);
   } else {
-    setTimeout(mount, 250);
+    setTimeout(mount, 900);
   }
 }
 
@@ -225,6 +253,7 @@ function renderBootstrap() {
   const { app, metrics, user } = state.bootstrap;
   els.brandTitle.textContent = app.name;
   els.brandSubtitle.textContent = app.heroTitle;
+  applyBrandLogo(app.logoUrl);
   els.heroTitle.textContent = app.heroTitle;
   els.heroSubtitle.textContent = app.heroSubtitle;
   els.worksCount.textContent = metrics.works_count;
@@ -304,7 +333,7 @@ function renderWorks() {
         <div class="work-body">
           <div class="section-head">
             <div>
-              <h3>${escapeHtml(work.title)}</h3>
+              <h3 class="work-title">${escapeHtml(work.title)}</h3>
               <p class="muted">${escapeHtml(work.description)}</p>
             </div>
             <span class="rating-chip">${work.average_rating ? work.average_rating.toFixed(1) : '0.0'} / 5</span>
@@ -413,9 +442,11 @@ function renderCalendar() {
   const items = days.map((day) => {
     const isPast = day.date < state.today;
     const selected = day.date === state.selectedDate;
+    const label = day.status === 'available' ? `${day.available_count || 0} ок.` : 'занято';
     return `
       <button class="day-pill ${day.status} ${selected ? 'selected' : ''} ${isPast ? 'past' : ''}" data-day="${day.date}" ${isPast ? 'disabled' : ''}>
         <span>${Number(day.date.slice(-2))}</span>
+        <small>${label}</small>
       </button>
     `;
   }).join('');

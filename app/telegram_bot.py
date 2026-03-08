@@ -269,22 +269,17 @@ class TelegramBotService:
 
     def send_welcome(self, chat_id: int, short: bool = False, is_admin: bool = False) -> None:
         text = (
-            'Привет! Открывай мини-приложение через кнопку меню бота: внутри работы, отзывы, запись и карта.'
+            'Привет! Открывай мини-приложение через кнопку меню бота слева от поля ввода.'
             if short
             else (
                 'Привет! Это <b>Danya-Tattoo-Voronezh</b>\n\n'
-                'Что внутри:\n'
-                '• галерея работ с отзывами;\n'
-                '• красивый календарь свободных дат;\n'
-                '• предварительный расчёт цены;\n'
-                '• запись прямо из Telegram Mini App.\n\n'
-                f'Предоплата фиксированная: <b>{settings.prepayment_amount_rub} ₽</b>.\n\n'
-                'Открывай мини-приложение через кнопку меню бота.'
+                'Внутри: работы, отзывы, запись, FAQ и карта.\n'
+                f'Фиксированная предоплата: <b>{settings.prepayment_amount_rub} ₽</b>.\n\n'
+                'Открывай Mini App через кнопку меню бота слева от поля ввода.'
             )
         )
         if is_admin:
             text += '\n\n🔐 Этот чат привязан как чат владельца. Сюда будут приходить заявки.'
-
 
         self._call(
             'sendMessage',
@@ -293,6 +288,7 @@ class TelegramBotService:
                 'text': text,
                 'parse_mode': 'HTML',
                 'disable_web_page_preview': True,
+                'reply_markup': {'remove_keyboard': True},
             },
         )
 

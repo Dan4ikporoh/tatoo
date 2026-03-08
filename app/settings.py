@@ -20,7 +20,7 @@ class Settings(BaseSettings):
     app_name: str = 'Danya-Tattoo-Voronezh'
     business_name: str = 'Danya Tattoo'
     hero_title: str = 'Татуировки в Воронеже'
-    hero_subtitle: str = 'Стильный Telegram Mini App: галерея, запись, отзывы и управление работами'
+    hero_subtitle: str = 'Работы, запись, отзывы и карта — в одном строгом Telegram Mini App.'
 
     bot_token: str = 'CHANGE_ME'
     bot_username: str = ''
