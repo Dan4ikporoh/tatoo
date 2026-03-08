@@ -11,7 +11,7 @@ const state = {
   currentMonth: null,
   today: new Date().toISOString().slice(0, 10),
   adminBookings: [],
-  estimate: { from: 3000, to: 5000 },
+  estimate: { from: 2000, to: 5000 },
 };
 
 const els = {
@@ -37,6 +37,7 @@ const els = {
   sizeInput: document.getElementById('sizeInput'),
   styleChoice: document.getElementById('styleChoice'),
   colorMode: document.getElementById('colorMode'),
+  bodyPlaceInput: document.getElementById('bodyPlaceInput'),
   mapContainer: document.getElementById('mapContainer'),
   addressText: document.getElementById('addressText'),
   openYandexMapBtn: document.getElementById('openYandexMapBtn'),
@@ -51,6 +52,9 @@ const els = {
   nextMonthBtn: document.getElementById('nextMonthBtn'),
   adminNavBtn: document.getElementById('adminNavBtn'),
   adminWorkForm: document.getElementById('adminWorkForm'),
+  adminAddWorkEntry: document.getElementById('adminAddWorkEntry'),
+  openAddWorkBtn: document.getElementById('openAddWorkBtn'),
+  addWorkModal: document.getElementById('addWorkModal'),
   adminWorksList: document.getElementById('adminWorksList'),
   adminDayForm: document.getElementById('adminDayForm'),
   adminSlotForm: document.getElementById('adminSlotForm'),
@@ -137,6 +141,35 @@ function bindNavigation() {
   els.heroBookingBtn?.addEventListener('click', () => switchPage('bookingPage'));
 }
 
+
+function initRevealAnimations() {
+  const nodes = document.querySelectorAll('.reveal, .glass-card, .work-card, .feature-card, .review-card, .contact-card, .day-pill, .slot-chip');
+  if (!('IntersectionObserver' in window)) {
+    nodes.forEach((node) => node.classList.add('is-visible'));
+    return;
+  }
+  if (initRevealAnimations._observer) initRevealAnimations._observer.disconnect();
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) entry.target.classList.add('is-visible');
+    });
+  }, { threshold: 0.08 });
+  nodes.forEach((node, index) => {
+    node.style.setProperty('--delay', `${Math.min(index * 35, 280)}ms`);
+    observer.observe(node);
+  });
+  initRevealAnimations._observer = observer;
+}
+
+function openAddWorkModal() {
+  if (!state.bootstrap?.user?.isAdmin) return;
+  els.addWorkModal?.classList.remove('hidden');
+}
+
+function closeAddWorkModal() {
+  els.addWorkModal?.classList.add('hidden');
+}
+
 function renderMap() {
   const app = state.bootstrap?.app;
   if (!app) return;
@@ -179,14 +212,16 @@ function renderBootstrap() {
   if (user.isAdmin) {
     els.adminNavBtn.classList.remove('hidden');
     document.getElementById('adminPage').classList.remove('hidden');
+    els.adminAddWorkEntry?.classList.remove('hidden');
   }
   renderMap();
+  initRevealAnimations();
 }
 
 function renderFeaturedWorks() {
   const items = state.works.length ? state.works.slice(0, 3) : (state.bootstrap?.featuredWorks || []);
   els.featuredWorks.innerHTML = items.map((work) => `
-    <button class="feature-card" data-open-lightbox="${work.id}">
+    <button class="feature-card reveal" data-open-lightbox="${work.id}">
       <img src="${work.image_path}" alt="${escapeHtml(work.title)}" />
       <div class="feature-overlay">
         <strong>${escapeHtml(work.title)}</strong>
@@ -230,7 +265,7 @@ function renderWorks() {
       : '<div class="work-review"><p class="muted">Пока отзывов к этой работе нет.</p></div>';
 
     return `
-      <article class="work-card reveal">
+      <article class="work-card modern-card reveal">
         <div class="work-media">
           <img class="work-image" src="${work.image_path}" alt="${escapeHtml(work.title)}" data-open-lightbox="${work.id}" />
         </div>
@@ -244,6 +279,7 @@ function renderWorks() {
           </div>
           <div class="tag-row">
             <span class="tag">${work.review_count || 0} отзыв(ов)</span>
+            <span class="tag">рейтинг ${work.average_rating ? work.average_rating.toFixed(1) : '0.0'}</span>
             ${assigned}
           </div>
           <div class="work-actions">
@@ -256,6 +292,7 @@ function renderWorks() {
       </article>
     `;
   }).join('');
+  initRevealAnimations();
 }
 
 function renderReviews() {
@@ -282,6 +319,7 @@ function renderReviews() {
       </article>
     `;
   }).join('');
+  initRevealAnimations();
 }
 
 function renderAdminWorks() {
@@ -533,6 +571,7 @@ async function submitAdminWork(event) {
   const formData = new FormData(els.adminWorkForm);
   await api('/api/admin/works', { method: 'POST', body: formData });
   els.adminWorkForm.reset();
+  closeAddWorkModal();
   await Promise.all([loadWorks(), loadBootstrap()]);
   showToast('Работа добавлена');
 }
@@ -540,8 +579,8 @@ async function submitAdminWork(event) {
 async function updateEstimate() {
   const size = els.sizeInput.value.trim();
   if (!size) {
-    state.estimate = { from: 3000, to: 5000 };
-    els.estimateRange.textContent = 'от 3 000 до 5 000 ₽';
+    state.estimate = { from: 2000, to: 5000 };
+    els.estimateRange.textContent = 'от 2 000 до 5 000 ₽';
     return;
   }
   try {
@@ -550,6 +589,7 @@ async function updateEstimate() {
       style_choice: els.styleChoice.value,
       color_mode: els.colorMode.value,
       service_location: els.bookingForm.service_location.value,
+      body_place: els.bodyPlaceInput.value.trim(),
     });
     const data = await api(`/api/price-estimate?${params.toString()}`);
     state.estimate = { from: data.estimateFrom, to: data.estimateTo };
@@ -694,6 +734,7 @@ function bindForms() {
     els.styleChoice.addEventListener(eventName, debouncedEstimate);
     els.colorMode.addEventListener(eventName, debouncedEstimate);
     els.bookingForm.service_location.addEventListener(eventName, debouncedEstimate);
+    els.bodyPlaceInput.addEventListener(eventName, debouncedEstimate);
   });
 
   els.reviewsList.addEventListener('click', (event) => handleReviewActions(event).catch(handleError));
@@ -730,6 +771,8 @@ function bindMapButtons() {
 function bindModals() {
   document.querySelectorAll('[data-close-modal]').forEach((node) => node.addEventListener('click', closeWorkReviewModal));
   document.querySelectorAll('[data-close-lightbox]').forEach((node) => node.addEventListener('click', closeLightbox));
+  document.querySelectorAll('[data-close-add-work]').forEach((node) => node.addEventListener('click', closeAddWorkModal));
+  els.openAddWorkBtn?.addEventListener('click', openAddWorkModal);
 }
 
 function handleError(error) {

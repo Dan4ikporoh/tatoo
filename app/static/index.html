@@ -63,6 +63,17 @@
           <div class="dashboard-grid">
             <article class="glass-card section-card reveal">
               <div class="section-head">
+                <h3>Как проходит запись</h3>
+              </div>
+              <div class="steps-grid">
+                <div class="step-card"><span>01</span><strong>Выбираешь дату</strong><p class="muted">Сразу видишь свободные окна и ориентир по цене.</p></div>
+                <div class="step-card"><span>02</span><strong>Заполняешь анкету</strong><p class="muted">Размер, зона, описание, фото-референс — всё в одном месте.</p></div>
+                <div class="step-card"><span>03</span><strong>Получаешь ответ</strong><p class="muted">Я подтверждаю запись и дальше уточняю детали лично.</p></div>
+              </div>
+            </article>
+
+            <article class="glass-card section-card reveal">
+              <div class="section-head">
                 <h3>Почему удобно</h3>
               </div>
               <ul class="bullet-list">
@@ -111,7 +122,11 @@
         <section id="worksPage" class="page">
           <div class="page-heading glass-card">
             <h2>Мои работы</h2>
-            <p class="muted">Анимированная галерея с живыми отзывами к каждой работе.</p>
+            <p class="muted">Модерновая галерея с плавными анимациями, лайв-отзывами и быстрым добавлением новых работ с телефона.</p>
+          </div>
+          <div id="adminAddWorkEntry" class="admin-quick-entry hidden reveal">
+            <button id="openAddWorkBtn" class="primary-btn hero-inline-btn">＋ Добавить работу</button>
+            <p class="muted">Только ты можешь загрузить новую работу и сразу указать Telegram username клиента, которому будет доступен отзыв.</p>
           </div>
           <div id="worksGrid" class="works-grid"></div>
         </section>
@@ -161,7 +176,7 @@
                     <option value="client_home">Нужно у меня дома</option>
                   </select>
                 </label>
-                <label><span>Место на теле</span><input name="body_place" type="text" required maxlength="120" placeholder="Предплечье, грудь, голень..." /></label>
+                <label><span>Место на теле</span><input id="bodyPlaceInput" name="body_place" type="text" required maxlength="120" placeholder="Мини тату, предплечье, рукав, голень..." /></label>
                 <label><span>Размер</span><input id="sizeInput" name="size_cm" type="text" required maxlength="60" placeholder="Например, 12 × 8 см" /></label>
                 <label>
                   <span>Стиль</span>
@@ -195,12 +210,23 @@
                 <h3>Предварительный расчёт</h3>
               </div>
               <div class="estimate-box">
-                <div class="estimate-range"><span id="estimateRange">от 3 000 до 5 000 ₽</span></div>
-                <p class="muted">Это ориентир до переписки с мастером. Точная цена зависит от эскиза, плотности, детализации и анатомии зоны.</p>
+                <div class="estimate-range"><span id="estimateRange">от 2 000 до 5 000 ₽</span></div>
+                <p class="price-warning">ЦЕНА ПРИМЕРНАЯ — ИТОГОВАЯ СТОИМОСТЬ МОЖЕТ БЫТЬ НИЖЕ ИЛИ ВЫШЕ ПОСЛЕ ОБСУЖДЕНИЯ ЭСКИЗА.</p>
+                <div class="pricing-hints">
+                  <span class="hint-chip">Мини тату: 2 000–5 000 ₽</span>
+                  <span class="hint-chip">Предплечье: 3 000–10 000 ₽</span>
+                  <span class="hint-chip">Рукав: 10 000–25 000 ₽</span>
+                  <span class="hint-chip">Нога: зависит от размера</span>
+                </div>
+                <p class="muted">Это ориентир до переписки с мастером. Чем сложнее эскиз, плотнее заливка и больше зона — тем выше вилка. Иногда итоговая цена получается ниже.</p>
               </div>
               <div class="mini-info">
                 <strong>Уведомления клиенту</strong>
-                <p class="muted">После отправки заявки клиент получает сообщение в Telegram, а после подтверждения — отдельное уведомление.</p>
+                <p class="muted">После отправки заявки клиент сразу видит предварительную цену, получает сообщение в Telegram, а после подтверждения — отдельное уведомление.</p>
+              </div>
+              <div class="mini-info">
+                <strong>Что ещё внутри</strong>
+                <p class="muted">Я добавил для тебя модерновую подачу, быстрый сценарий записи и удобный способ загружать свежие работы прямо с телефона без лишних действий.</p>
               </div>
             </div>
           </div>
@@ -261,14 +287,8 @@
             <p class="muted">Добавление работ, управление календарём и публичными отзывами к каждой работе.</p>
           </div>
           <div class="glass-card section-card reveal">
-            <div class="section-head"><h3>Добавить новую работу</h3></div>
-            <form id="adminWorkForm" class="form-stack" enctype="multipart/form-data">
-              <label><span>Название работы</span><input name="title" type="text" required maxlength="120" /></label>
-              <label><span>Описание</span><textarea name="description" rows="4" required maxlength="1000"></textarea></label>
-              <label><span>Username клиента, который может оставить отзыв на эту работу</span><input name="allowed_reviewer_username" type="text" maxlength="64" placeholder="Например, client_username" /></label>
-              <label><span>Фото работы</span><input name="image" type="file" accept="image/jpeg,image/png,image/webp" required /></label>
-              <button class="primary-btn" type="submit">Добавить в галерею</button>
-            </form>
+            <div class="section-head"><h3>Загрузка новых работ</h3></div>
+            <p class="muted">Быстрая кнопка добавления перенесена в раздел «Работы», чтобы ты мог заливать фото прямо с телефона без переходов по всему приложению.</p>
           </div>
 
           <div class="glass-card section-card reveal">
@@ -349,6 +369,20 @@
           <h3 id="lightboxTitle"></h3>
           <p id="lightboxDesc" class="muted"></p>
         </div>
+      </div>
+    </div>
+
+    <div id="addWorkModal" class="modal hidden">
+      <div class="modal-backdrop" data-close-add-work></div>
+      <div class="modal-card glass-card">
+        <div class="section-head"><h3>Добавить новую работу</h3><button class="icon-btn" data-close-add-work>✕</button></div>
+        <form id="adminWorkForm" class="form-stack" enctype="multipart/form-data">
+          <label><span>Название работы</span><input name="title" type="text" required maxlength="120" placeholder="Например, Blackwork на предплечье" /></label>
+          <label><span>Описание</span><textarea name="description" rows="4" required maxlength="1000" placeholder="Коротко опиши стиль, размер и настроение работы"></textarea></label>
+          <label><span>Telegram username клиента, который сможет оставить отзыв</span><input name="allowed_reviewer_username" type="text" maxlength="64" placeholder="Например, client_username" /></label>
+          <label><span>Фото работы</span><input name="image" type="file" accept="image/jpeg,image/png,image/webp" capture="environment" required /></label>
+          <button class="primary-btn" type="submit">Опубликовать работу</button>
+        </form>
       </div>
     </div>
 

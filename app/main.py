@@ -122,22 +122,63 @@ def round_to_500(value: float) -> int:
 
 
 
-def estimate_price(size_cm: str, style_choice: str, color_mode: str, service_location: str) -> tuple[int, int]:
-    numbers = [float(item.replace(',', '.')) for item in __import__('re').findall(r'\d+(?:[\.,]\d+)?', size_cm)]
+def estimate_price(size_cm: str, style_choice: str, color_mode: str, service_location: str, body_place: str = '') -> tuple[int, int]:
+    import re
+
+    numbers = [float(item.replace(',', '.')) for item in re.findall(r'\d+(?:[\.,]\d+)?', size_cm)]
     if len(numbers) >= 2:
-        area = numbers[0] * numbers[1]
+        width, height = numbers[0], numbers[1]
+        area = width * height
+        longest_side = max(width, height)
     elif len(numbers) == 1:
-        area = numbers[0] * numbers[0] * 0.7
+        longest_side = numbers[0]
+        area = longest_side * longest_side * 0.7
     else:
+        longest_side = 6
         area = 36
 
-    base = 2200 + area * 45
-    base *= STYLE_MULTIPLIERS.get(style_choice, 1.1)
-    base *= COLOR_MULTIPLIERS.get(color_mode, 1.0)
-    base *= SERVICE_MULTIPLIERS.get(service_location, 1.0)
+    place = (body_place or '').strip().lower()
 
-    estimate_from = round_to_500(max(2500, base * 0.9))
-    estimate_to = round_to_500(max(estimate_from + 500, base * 1.2))
+    def has_any(*words: str) -> bool:
+        return any(word in place for word in words)
+
+    if has_any('рукав', 'sleeve'):
+        price_from, price_to = 10000, 25000
+    elif has_any('предплеч', 'forearm'):
+        if area <= 40:
+            price_from, price_to = 3000, 5000
+        elif area <= 100:
+            price_from, price_to = 4000, 7000
+        else:
+            price_from, price_to = 6000, 10000
+    elif has_any('нога', 'голень', 'икра', 'бедро', 'leg', 'calf', 'thigh'):
+        if area <= 40:
+            price_from, price_to = 2500, 5000
+        elif area <= 120:
+            price_from, price_to = 4000, 9000
+        elif area <= 220:
+            price_from, price_to = 7000, 15000
+        else:
+            price_from, price_to = 12000, 25000
+    else:
+        if longest_side <= 7 or area <= 36:
+            price_from, price_to = 2000, 5000
+        elif area <= 100:
+            price_from, price_to = 3000, 9000
+        elif area <= 220:
+            price_from, price_to = 6000, 16000
+        else:
+            price_from, price_to = 10000, 25000
+
+    style_mul = STYLE_MULTIPLIERS.get(style_choice, 1.0)
+    color_mul = COLOR_MULTIPLIERS.get(color_mode, 1.0)
+    service_mul = SERVICE_MULTIPLIERS.get(service_location, 1.0)
+
+    estimate_from = round_to_500(price_from * style_mul * color_mul * service_mul)
+    estimate_to = round_to_500(price_to * max(style_mul, 1.0) * color_mul * service_mul)
+
+    if estimate_to <= estimate_from:
+        estimate_to = estimate_from + 500
     return estimate_from, estimate_to
 
 
@@ -340,10 +381,11 @@ def price_estimate(
     style_choice: str = 'custom',
     color_mode: str = 'blackwork',
     service_location: str = 'studio',
+    body_place: str = '',
     user: UserIdentity = Depends(get_current_user),
 ) -> dict:
     del user
-    estimate_from, estimate_to = estimate_price(size_cm, style_choice, color_mode, service_location)
+    estimate_from, estimate_to = estimate_price(size_cm, style_choice, color_mode, service_location, body_place)
     return {'estimateFrom': estimate_from, 'estimateTo': estimate_to}
 
 
@@ -384,7 +426,7 @@ async def create_booking(
         filename = save_upload(reference_photo, settings.booking_uploads_dir)
         reference_path = str(settings.booking_uploads_dir / filename)
 
-    estimate_from, estimate_to = estimate_price(size_cm.strip(), style_choice, color_mode, service_location)
+    estimate_from, estimate_to = estimate_price(size_cm.strip(), style_choice, color_mode, service_location, body_place.strip())
     booking = database.create_booking(
         user=user,
         full_name=full_name.strip(),
