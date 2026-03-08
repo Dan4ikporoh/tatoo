@@ -42,12 +42,14 @@ img { max-width: 100%; display: block; }
 .app-shell {
   width: min(100%, var(--max));
   margin: 0 auto;
-  padding: 20px 16px 120px;
+  padding: 20px 16px calc(132px + env(safe-area-inset-bottom, 0px));
+  overflow-x: clip;
 }
 
 .topbar {
   display: flex; align-items: center; justify-content: space-between; gap: 12px;
   padding: 14px 16px; margin-bottom: 18px;
+  flex-wrap: wrap;
 }
 .brand-wrap { display: flex; align-items: center; gap: 14px; }
 .brand-wrap img { width: 58px; height: 58px; border-radius: 18px; object-fit: cover; box-shadow: 0 18px 36px rgba(0,0,0,.28); }
@@ -81,12 +83,13 @@ img { max-width: 100%; display: block; }
 .hero-eyebrow { display: inline-flex; align-items: center; gap: 8px; padding: 8px 12px; border-radius: 999px; background: rgba(255,255,255,.05); color: #dfe4ff; border: 1px solid rgba(255,255,255,.06); }
 .hero-card h2 { font-size: clamp(28px, 5vw, 46px); line-height: 1.02; margin: 16px 0 12px; }
 .hero-card p { max-width: 720px; }
-.hero-actions, .inline-actions, .work-actions, .tag-row, .calendar-legend, .feature-pills, .pricing-hints { display: flex; flex-wrap: wrap; gap: 10px; }
+.hero-actions, .inline-actions, .work-actions, .tag-row, .calendar-legend, .feature-pills, .pricing-hints { display: flex; flex-wrap: wrap; gap: 10px; align-items: stretch; }
 .hero-inline-btn, .primary-btn, .secondary-btn, .icon-btn, .nav-btn, .contact-button {
   transition: transform .24s ease, box-shadow .24s ease, border-color .24s ease, background .24s ease, opacity .24s ease;
 }
 .primary-btn, .secondary-btn, .icon-btn, .nav-btn {
   border: 1px solid transparent; border-radius: 18px; padding: 13px 16px; color: var(--text);
+  min-width: 0;
 }
 .primary-btn {
   background: linear-gradient(135deg, var(--accent), #ff7a59);
@@ -107,8 +110,9 @@ img { max-width: 100%; display: block; }
 .metrics-grid, .dashboard-grid, .form-grid, .contact-grid, .admin-grid, .featured-grid, .works-grid, .steps-grid {
   display: grid; gap: 16px;
 }
-.metrics-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); margin-top: 16px; }
-.metric-card { padding: 16px; min-height: 110px; display: flex; flex-direction: column; justify-content: space-between; }
+.metrics-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); margin-top: 16px; align-items: stretch; }
+.metric-card { padding: 16px; min-height: 110px; display: flex; flex-direction: column; justify-content: space-between; gap: 8px; }
+.metric-card span, .metric-card small, .metric-card p { word-break: break-word; }
 .metric-card strong { font-size: 34px; line-height: 1; }
 .feature-pill, .tag, .hint-chip {
   display: inline-flex; align-items: center; gap: 8px; padding: 9px 12px; border-radius: 999px;
@@ -205,9 +209,11 @@ textarea { resize: vertical; min-height: 120px; }
 .booking-meta { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px; color: var(--muted); }
 
 .bottom-nav {
-  position: fixed; left: 50%; bottom: 12px; transform: translateX(-50%); z-index: 30;
+  position: fixed; left: 50%; bottom: calc(12px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); z-index: 30;
   width: min(calc(100% - 16px), 980px); padding: 10px; display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 8px;
+  align-items: stretch;
 }
+.nav-btn { min-height: 50px; display: inline-flex; align-items: center; justify-content: center; text-align: center; line-height: 1.15; white-space: normal; word-break: break-word; }
 .nav-btn.active { background: linear-gradient(135deg, rgba(255,77,95,.22), rgba(124,140,255,.2)); border-color: rgba(255,255,255,.12); }
 
 .modal { position: fixed; inset: 0; z-index: 40; display: grid; place-items: center; padding: 16px; }
@@ -228,17 +234,39 @@ textarea { resize: vertical; min-height: 120px; }
 .is-visible { opacity: 1 !important; transform: none !important; }
 
 @media (max-width: 920px) {
-  .featured-grid, .metrics-grid, .steps-grid, .contact-grid, .admin-grid, .form-grid, .works-grid, .dashboard-grid { grid-template-columns: 1fr; }
+  .featured-grid, .steps-grid, .contact-grid, .admin-grid, .form-grid, .works-grid, .dashboard-grid { grid-template-columns: 1fr; }
+  .metrics-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .bottom-nav { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .address-row, .admin-quick-entry, .section-head, .calendar-head { flex-direction: column; align-items: stretch; }
   .sticky-card { position: static; }
 }
 
+@media (max-width: 720px) {
+  .topbar { padding: 12px 14px; }
+  .brand-wrap { width: 100%; }
+  .hero-actions > *, .inline-actions > *, .work-actions > * { flex: 1 1 220px; }
+  .address-row > *, .admin-quick-entry > * { width: 100%; }
+  .metrics-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
 @media (max-width: 560px) {
-  .app-shell { padding: 12px 12px 120px; }
+  .app-shell { padding: 12px 12px calc(148px + env(safe-area-inset-bottom, 0px)); }
   .hero-card, .section-card, .page-heading { padding: 16px; }
   .brand-wrap img { width: 50px; height: 50px; }
+  .brand-wrap h1 { font-size: 16px; }
   .feature-card { min-height: 180px; }
   .modal-card, .lightbox-card { padding: 14px; }
-  .nav-btn { padding: 11px 10px; font-size: 13px; }
+  .metrics-grid, .featured-grid, .steps-grid, .contact-grid, .admin-grid, .form-grid, .works-grid, .dashboard-grid { grid-template-columns: 1fr; }
+  .hero-actions, .inline-actions, .work-actions, .tag-row, .calendar-legend, .feature-pills, .pricing-hints, .slot-list { display: grid; grid-template-columns: 1fr; }
+  .hero-actions > *, .inline-actions > *, .work-actions > *, .slot-list > * { width: 100%; }
+  .bottom-nav { width: calc(100% - 12px); padding: 8px; gap: 6px; grid-template-columns: repeat(2, minmax(0, 1fr)); border-radius: 24px; }
+  .nav-btn { padding: 12px 8px; font-size: 13px; min-height: 48px; }
+  .calendar-grid, .weekdays { gap: 6px; }
+  .day-pill, .slot-chip { min-height: 46px; font-size: 14px; }
+  .review-top, .address-row { gap: 8px; }
+}
+
+@media (max-width: 380px) {
+  .bottom-nav { grid-template-columns: 1fr 1fr; }
+  .hero-card h2 { font-size: 30px; }
 }
