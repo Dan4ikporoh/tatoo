@@ -269,7 +269,7 @@ class TelegramBotService:
 
     def send_welcome(self, chat_id: int, short: bool = False, is_admin: bool = False) -> None:
         text = (
-            'Привет! Жми кнопку ниже и открывай мини-приложение: работы, отзывы, календарь записи и карта.'
+            'Привет! Открывай мини-приложение через кнопку меню бота: внутри работы, отзывы, запись и карта.'
             if short
             else (
                 'Привет! Это <b>Danya-Tattoo-Voronezh</b>\n\n'
@@ -279,13 +279,12 @@ class TelegramBotService:
                 '• предварительный расчёт цены;\n'
                 '• запись прямо из Telegram Mini App.\n\n'
                 f'Предоплата фиксированная: <b>{settings.prepayment_amount_rub} ₽</b>.\n\n'
-                'Нажимай кнопку ниже 👇'
+                'Открывай мини-приложение через кнопку меню бота.'
             )
         )
         if is_admin:
             text += '\n\n🔐 Этот чат привязан как чат владельца. Сюда будут приходить заявки.'
 
-        text += '\n\nЕсли кнопка не сработала, открой Mini App через кнопку <b>Danya Tattoo</b> слева от поля ввода.'
 
         self._call(
             'sendMessage',
@@ -293,9 +292,6 @@ class TelegramBotService:
                 'chat_id': chat_id,
                 'text': text,
                 'parse_mode': 'HTML',
-                'reply_markup': {
-                    'inline_keyboard': [[self._web_app_button('📲 Открыть приложение')]],
-                },
                 'disable_web_page_preview': True,
             },
         )
@@ -406,7 +402,6 @@ class TelegramBotService:
                 payload={
                     'chat_id': int(booking['user_id']),
                     'text': text,
-                    'reply_markup': {'inline_keyboard': [[self._web_app_button('Открыть запись')]]},
                 },
             )
         except Exception:
@@ -429,7 +424,6 @@ class TelegramBotService:
                 payload={
                     'chat_id': int(booking['user_id']),
                     'text': text,
-                    'reply_markup': {'inline_keyboard': [[self._web_app_button('Открыть приложение')]]},
                 },
             )
         except Exception:

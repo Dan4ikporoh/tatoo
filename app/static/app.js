@@ -66,7 +66,6 @@ const els = {
   sideMenu: document.getElementById('sideMenu'),
   sideMenuBackdrop: document.getElementById('sideMenuBackdrop'),
   sideMenuClose: document.getElementById('sideMenuClose'),
-  fabBookingBtn: document.getElementById('fabBookingBtn'),
   workReviewModalTitle: document.getElementById('workReviewModalTitle'),
   workReviewForm: document.getElementById('workReviewForm'),
   lightbox: document.getElementById('lightbox'),
@@ -130,6 +129,7 @@ function switchPage(pageId) {
   els.pages.forEach((page) => page.classList.toggle('active', page.id === pageId));
   els.navButtons.forEach((button) => button.classList.toggle('active', button.dataset.navTarget === pageId));
   closeSideMenu();
+  if (pageId === 'homePage' || pageId === 'contactPage') renderMap();
   if (tg?.HapticFeedback) tg.HapticFeedback.selectionChanged();
 }
 
@@ -157,7 +157,6 @@ function bindNavigation() {
     button.addEventListener('click', () => switchPage(button.dataset.navTarget));
   });
   els.heroBookingBtn?.addEventListener('click', () => switchPage('bookingPage'));
-  els.fabBookingBtn?.addEventListener('click', () => switchPage('bookingPage'));
   els.menuToggleBtn?.addEventListener('click', openSideMenu);
   els.sideMenuBackdrop?.addEventListener('click', closeSideMenu);
   els.sideMenuClose?.addEventListener('click', closeSideMenu);
@@ -165,7 +164,7 @@ function bindNavigation() {
 
 
 function initRevealAnimations() {
-  const nodes = document.querySelectorAll('.reveal, .glass-card, .work-card, .feature-card, .review-card, .contact-card, .day-pill, .slot-chip');
+  const nodes = document.querySelectorAll('.reveal, .section-card, .page-heading, .work-card');
   if (!('IntersectionObserver' in window)) {
     nodes.forEach((node) => node.classList.add('is-visible'));
     return;
@@ -175,13 +174,14 @@ function initRevealAnimations() {
     entries.forEach((entry) => {
       if (entry.isIntersecting) entry.target.classList.add('is-visible');
     });
-  }, { threshold: 0.08 });
+  }, { threshold: 0.03 });
   nodes.forEach((node, index) => {
-    node.style.setProperty('--delay', `${Math.min(index * 35, 280)}ms`);
+    node.style.setProperty('--delay', `${Math.min(index * 18, 120)}ms`);
     observer.observe(node);
   });
   initRevealAnimations._observer = observer;
 }
+
 
 function openAddWorkModal() {
   if (!state.bootstrap?.user?.isAdmin) return;
@@ -192,12 +192,22 @@ function closeAddWorkModal() {
   els.addWorkModal?.classList.add('hidden');
 }
 
-function renderMap() {
+function renderMap(force = false) {
   const app = state.bootstrap?.app;
-  if (!app) return;
-  els.mapContainer.innerHTML = `
-    <iframe src="${escapeHtml(app.mapEmbedUrl)}" title="${escapeHtml(app.mapEmbedTitle || 'Яндекс Карта')}" loading="lazy"></iframe>
-  `;
+  if (!app || !els.mapContainer) return;
+  if (els.mapContainer.dataset.loaded === '1') return;
+  if (!force && document.getElementById('homePage')?.classList.contains('active') === false) return;
+  const mount = () => {
+    els.mapContainer.innerHTML = `
+      <iframe src="${escapeHtml(app.mapEmbedUrl)}" title="${escapeHtml(app.mapEmbedTitle || 'Яндекс Карта')}" loading="lazy"></iframe>
+    `;
+    els.mapContainer.dataset.loaded = '1';
+  };
+  if ('requestIdleCallback' in window) {
+    requestIdleCallback(mount, { timeout: 1200 });
+  } else {
+    setTimeout(mount, 250);
+  }
 }
 
 function openYandexMaps() {
@@ -244,7 +254,7 @@ function renderFeaturedWorks() {
   const items = state.works.length ? state.works.slice(0, 3) : (state.bootstrap?.featuredWorks || []);
   els.featuredWorks.innerHTML = items.map((work) => `
     <button class="feature-card reveal" data-open-lightbox="${work.id}">
-      <img src="${work.image_path}" alt="${escapeHtml(work.title)}" />
+      <img src="${work.image_path}" alt="${escapeHtml(work.title)}" loading="lazy" decoding="async" />
       <div class="feature-overlay">
         <strong>${escapeHtml(work.title)}</strong>
         <span class="muted">${work.review_count || 0} отзыв(ов)</span>
@@ -289,7 +299,7 @@ function renderWorks() {
     return `
       <article class="work-card modern-card reveal">
         <div class="work-media">
-          <img class="work-image" src="${work.image_path}" alt="${escapeHtml(work.title)}" data-open-lightbox="${work.id}" />
+          <img class="work-image" src="${work.image_path}" alt="${escapeHtml(work.title)}" data-open-lightbox="${work.id}" loading="lazy" decoding="async" />
         </div>
         <div class="work-body">
           <div class="section-head">
@@ -348,7 +358,7 @@ function renderAdminWorks() {
   if (!state.bootstrap?.user?.isAdmin) return;
   els.adminWorksList.innerHTML = state.works.map((work) => `
     <article class="admin-work-card">
-      <img src="${work.image_path}" alt="${escapeHtml(work.title)}" />
+      <img src="${work.image_path}" alt="${escapeHtml(work.title)}" loading="lazy" decoding="async" />
       <div>
         <div class="section-head">
           <strong>${escapeHtml(work.title)}</strong>
