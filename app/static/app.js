@@ -17,7 +17,7 @@ const state = {
 const els = {
   toast: document.getElementById('toast'),
   pages: Array.from(document.querySelectorAll('.page')),
-  navButtons: Array.from(document.querySelectorAll('.nav-btn')),
+  navButtons: Array.from(document.querySelectorAll('.side-nav-btn')), 
   heroBookingBtn: document.getElementById('heroBookingBtn'),
   brandTitle: document.getElementById('brandTitle'),
   brandSubtitle: document.getElementById('brandSubtitle'),
@@ -61,6 +61,12 @@ const els = {
   adminSlotTime: document.getElementById('adminSlotTime'),
   adminBookingsList: document.getElementById('adminBookingsList'),
   workReviewModal: document.getElementById('workReviewModal'),
+  authHint: document.getElementById('authHint'),
+  menuToggleBtn: document.getElementById('menuToggleBtn'),
+  sideMenu: document.getElementById('sideMenu'),
+  sideMenuBackdrop: document.getElementById('sideMenuBackdrop'),
+  sideMenuClose: document.getElementById('sideMenuClose'),
+  fabBookingBtn: document.getElementById('fabBookingBtn'),
   workReviewModalTitle: document.getElementById('workReviewModalTitle'),
   workReviewForm: document.getElementById('workReviewForm'),
   lightbox: document.getElementById('lightbox'),
@@ -123,7 +129,18 @@ async function api(url, options = {}) {
 function switchPage(pageId) {
   els.pages.forEach((page) => page.classList.toggle('active', page.id === pageId));
   els.navButtons.forEach((button) => button.classList.toggle('active', button.dataset.navTarget === pageId));
+  closeSideMenu();
   if (tg?.HapticFeedback) tg.HapticFeedback.selectionChanged();
+}
+
+function openSideMenu() {
+  els.sideMenu?.classList.remove('hidden');
+  document.body.classList.add('menu-open');
+}
+
+function closeSideMenu() {
+  els.sideMenu?.classList.add('hidden');
+  document.body.classList.remove('menu-open');
 }
 
 function setupTelegram() {
@@ -132,6 +149,7 @@ function setupTelegram() {
   tg.expand();
   tg.setHeaderColor?.('#09090c');
   tg.setBackgroundColor?.('#09090c');
+  tg.BackButton?.hide?.();
 }
 
 function bindNavigation() {
@@ -139,6 +157,10 @@ function bindNavigation() {
     button.addEventListener('click', () => switchPage(button.dataset.navTarget));
   });
   els.heroBookingBtn?.addEventListener('click', () => switchPage('bookingPage'));
+  els.fabBookingBtn?.addEventListener('click', () => switchPage('bookingPage'));
+  els.menuToggleBtn?.addEventListener('click', openSideMenu);
+  els.sideMenuBackdrop?.addEventListener('click', closeSideMenu);
+  els.sideMenuClose?.addEventListener('click', closeSideMenu);
 }
 
 
@@ -799,6 +821,11 @@ async function init() {
     if (state.bootstrap?.user?.isAdmin) await loadAdminBookings();
   } catch (error) {
     handleError(error);
+    const message = String(error?.message || '');
+    if (message.toLowerCase().includes('авторизац')) {
+      els.authHint?.classList.remove('hidden');
+      switchPage('homePage');
+    }
   }
 }
 

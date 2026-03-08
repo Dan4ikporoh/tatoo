@@ -20,8 +20,18 @@
             <p id="brandSubtitle" class="muted">Татуировки в Воронеже</p>
           </div>
         </div>
-        <button id="heroBookingBtn" class="primary-btn">Записаться</button>
+        <div class="topbar-actions">
+          <button id="heroBookingBtn" class="primary-btn desktop-booking-btn">Записаться</button>
+          <button id="menuToggleBtn" class="menu-toggle" aria-label="Открыть меню">
+            <span></span><span></span><span></span>
+          </button>
+        </div>
       </header>
+
+      <div id="authHint" class="auth-hint glass-card hidden">
+        <strong>Открывай приложение через Telegram</strong>
+        <p class="muted">Если видишь сообщение про авторизацию, запускай Mini App через кнопку <b>Danya Tattoo</b> слева от поля ввода или через кнопку внутри бота.</p>
+      </div>
 
       <main class="pages">
         <section id="homePage" class="page active">
@@ -327,14 +337,28 @@
         </section>
       </main>
 
-      <nav class="bottom-nav glass-card">
-        <button class="nav-btn active" data-nav-target="homePage">Главная</button>
-        <button class="nav-btn" data-nav-target="worksPage">Работы</button>
-        <button class="nav-btn" data-nav-target="bookingPage">Запись</button>
-        <button class="nav-btn" data-nav-target="reviewsPage">Отзывы</button>
-        <button class="nav-btn" data-nav-target="contactPage">Связь</button>
-        <button id="adminNavBtn" class="nav-btn hidden" data-nav-target="adminPage">Админ</button>
-      </nav>
+      <button id="fabBookingBtn" class="fab-booking primary-btn">Записаться</button>
+
+      <aside id="sideMenu" class="side-menu hidden">
+        <div id="sideMenuBackdrop" class="side-menu-backdrop"></div>
+        <div class="side-menu-panel glass-card">
+          <div class="side-menu-head">
+            <div>
+              <p class="eyebrow">Меню</p>
+              <h3>Разделы приложения</h3>
+            </div>
+            <button id="sideMenuClose" class="icon-btn" aria-label="Закрыть меню">✕</button>
+          </div>
+          <div class="side-menu-links">
+            <button class="side-nav-btn active" data-nav-target="homePage"><strong>Главная</strong><span>Стартовый экран, карта и быстрые действия</span></button>
+            <button class="side-nav-btn" data-nav-target="worksPage"><strong>Работы</strong><span>Галерея, отзывы к работам и загрузка новых фото</span></button>
+            <button class="side-nav-btn" data-nav-target="bookingPage"><strong>Запись</strong><span>Календарь, цена заранее и анкета клиента</span></button>
+            <button class="side-nav-btn" data-nav-target="reviewsPage"><strong>Отзывы</strong><span>Общие отзывы, которые видят все пользователи</span></button>
+            <button class="side-nav-btn" data-nav-target="contactPage"><strong>Связь</strong><span>Telegram, VK и Яндекс Карты</span></button>
+            <button id="adminNavBtn" class="side-nav-btn hidden" data-nav-target="adminPage"><strong>Админ</strong><span>Календарь, работы и управление отзывами</span></button>
+          </div>
+        </div>
+      </aside>
     </div>
 
     <div id="workReviewModal" class="modal hidden">

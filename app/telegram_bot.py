@@ -285,6 +285,8 @@ class TelegramBotService:
         if is_admin:
             text += '\n\n🔐 Этот чат привязан как чат владельца. Сюда будут приходить заявки.'
 
+        text += '\n\nЕсли кнопка не сработала, открой Mini App через кнопку <b>Danya Tattoo</b> слева от поля ввода.'
+
         self._call(
             'sendMessage',
             payload={
@@ -292,9 +294,7 @@ class TelegramBotService:
                 'text': text,
                 'parse_mode': 'HTML',
                 'reply_markup': {
-                    'keyboard': [[self._web_app_button('📲 Открыть приложение')]],
-                    'resize_keyboard': True,
-                    'is_persistent': True,
+                    'inline_keyboard': [[self._web_app_button('📲 Открыть приложение')]],
                 },
                 'disable_web_page_preview': True,
             },
